@@ -1,6 +1,6 @@
-from datetime import datetime
-from extensions import db
 
+from extensions import db
+from auth.models import Teacher,Admin,Student
 
 
 
@@ -27,9 +27,13 @@ class OptionalSubject(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     subject_name = db.Column(db.String(50),unique=True)
     subject_code = db.Column(db.String(50),unique=True)
+
+
+    # FK => Class id
+    class_id = db.Column(db.Integer,db.ForeignKey("class.id"))
     
-    # Class+OptionalSubject [m:m]
-    class_link = db.relationship("Class", back_populates="optional_subjects")
+    # Class+OptionalSubject [1:m]
+    class_ = db.relationship("Class", back_populates="optional_subjects")
 
     def __repr__(self):
         return f"<OptionalSubject: {self.subject_code} - {self.subject_name}>"
@@ -58,7 +62,7 @@ class Class(db.Model):
     
 
 class ClassCompulsarySubject(db.Model):
-    __tablename__ = "classteacher"
+    __tablename__ = "classcompulsarysubject"
 
     id = db.Column(db.Integer,primary_key=True) 
     class_id = db.Column(db.Integer,db.ForeignKey("class.id"))
@@ -118,10 +122,12 @@ class ValidStudent(db.Model):
     last_name = db.Column(db.String(50),nullable=False)   
 
     # Class+ValidStudent [1:m]
-    class_ = db.relationship("Class", back_populates="students")
+    class_id = db.Column(db.Integer, db.ForeignKey("class.id"))
+
+    class_ = db.relationship("Class",back_populates="students")
 
     # Admin+ValidStudent [1:1]
-    admin = db.relationship("ValidStudent", back_populates="valid_student", uselist=False)
+    admin = db.relationship("Admin", back_populates="valid_admin_student", uselist=False)
 
     # Student+ValidStudent [1:1]
     student = db.relationship("Student", back_populates="valid_student", uselist=False)  
