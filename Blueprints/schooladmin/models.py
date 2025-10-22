@@ -86,6 +86,9 @@ class ValidTeacher(db.Model):
     # ValidTeacher+ClassTeacher [m:m]
     class_links = db.relationship("ClassTeacher", back_populates="valid_teacher")
 
+     # Teacher+ValidTeacher [1:1] 
+    teacher = db.relationship("Teacher", back_populates="valid_teacher", uselist=False)
+
     def __repr__(self):
         return f"<ValidTeacher: {self.first_name} {self.last_name}>"
 
@@ -116,6 +119,12 @@ class ValidStudent(db.Model):
 
     # Class+ValidStudent [1:m]
     class_ = db.relationship("Class", back_populates="students")
+
+    # Admin+ValidStudent [1:1]
+    admin = db.relationship("ValidStudent", back_populates="valid_student", uselist=False)
+
+    # Student+ValidStudent [1:1]
+    student = db.relationship("Student", back_populates="valid_student", uselist=False)  
 
     def __repr__(self):
         return f"<ValidStudent: {self.first_name} {self.last_name}>"
