@@ -53,7 +53,7 @@ class ClassTeacher(db.Model):
     __tablename__ = "classteacher"
 
     id = db.Column(db.Integer,primary_key=True) 
-    class_id = db.Column( db.Integer,db.ForeignKey("class.id"))
+    class_id = db.Column(db.Integer,db.ForeignKey("class.id"))
     valid_teacher_id = db.Column(db.Integer,db.ForeignKey("validteacher.id"))
 
 
