@@ -1,22 +1,38 @@
 from datetime import datetime
 from extensions import db
-from flask_login import UserMixin
+
 
 
 
 class CompulsarySubject(db.Model):
+    __tablename__ = "compulsarysubject"
+
     id = db.Column(db.Integer,primary_key=True)
     subject_name = db.Column(db.String(50),unique=True)
     subject_code = db.Column(db.String(50),unique=True)
+
+    # Class+ClassCompulsarySubject [m:m]
+    class_link = db.relationship("ClassCompulsarySubject",back_populates="compulsary_subject")
+
+    def __repr__(self):
+        return f"<CompulsarySubject: {self.subject_code} - {self.subject_name}>"
     
 
 
 
 class OptionalSubject(db.Model):
+    __tablename__ = "optionalsubject"
+    
+
     id = db.Column(db.Integer,primary_key=True)
     subject_name = db.Column(db.String(50),unique=True)
     subject_code = db.Column(db.String(50),unique=True)
     
+    # Class+OptionalSubject [m:m]
+    class_link = db.relationship("Class", back_populates="optional_subjects")
+
+    def __repr__(self):
+        return f"<OptionalSubject: {self.subject_code} - {self.subject_name}>"
 
 
 class Class(db.Model):
@@ -25,11 +41,38 @@ class Class(db.Model):
     id = db.Column(db.Integer,primary_key=True) 
     class_name = db.Column(db.String(50),unique=True,nullable=False)
 
-    # Class+ClassTeacher
+    # Class+ClassTeacher [m:m]
     valid_teacher_links = db.relationship("ClassTeacher", back_populates="class_")
 
+    # Class+Student [1:m]
+    students = db.relationship("ValidStudent", back_populates="class_", uselist=True)
+
+    # Class+OptionalSubject [1:m]
+    optional_subjects = db.relationship("OptionalSubject", back_populates="class_", uselist=True)
+
+    # Class+ClassCompulsarySubject [m:m]
+    compulsary_subjects = db.relationship("ClassCompulsarySubject",back_populates="class_link")
+
     def __repr__(self):
-        return f"<Class {self.class_name}>"
+        return f"<Class: {self.class_name}>"
+    
+
+class ClassCompulsarySubject(db.Model):
+    __tablename__ = "classteacher"
+
+    id = db.Column(db.Integer,primary_key=True) 
+    class_id = db.Column(db.Integer,db.ForeignKey("class.id"))
+    compulsary_subject_id = db.Column(db.Integer,db.ForeignKey("compulsarysubject.id"))
+
+    # [m:m]
+    class_link = db.relationship("Class", back_populates="compulsary_subjects")
+    compulsary_subject = db.relationship("CompulsarySubject", back_populates="class_link")
+
+    def __repr__(self):
+        return f"<ClassCompulsarySubject: {self.class_link.class_name} - {self.compulsary_subject.subject_name}>"
+    
+
+
 
 
 
@@ -40,11 +83,11 @@ class ValidTeacher(db.Model):
     first_name = db.Column(db.String(50),nullable=False)
     last_name = db.Column(db.String(50),nullable=False)
 
-    # ValidTeacher+ClassTeacher
+    # ValidTeacher+ClassTeacher [m:m]
     class_links = db.relationship("ClassTeacher", back_populates="valid_teacher")
 
     def __repr__(self):
-        return f"<ValidTeacher {self.first_name} {self.last_name}>"
+        return f"<ValidTeacher: {self.first_name} {self.last_name}>"
 
 
 
@@ -56,12 +99,12 @@ class ClassTeacher(db.Model):
     class_id = db.Column(db.Integer,db.ForeignKey("class.id"))
     valid_teacher_id = db.Column(db.Integer,db.ForeignKey("validteacher.id"))
 
-
+     
     class_ = db.relationship("Class", back_populates="valid_teacher_links")
     valid_teacher = db.relationship("ValidTeacher", back_populates="class_links")
 
     def __repr__(self):
-        return f"<ClassTeacher {self.class_.class_name} - {self.valid_teacher.first_name} {self.valid_teacher.last_name}>"
+        return f"<ClassTeacher: {self.class_.class_name} - {self.valid_teacher.first_name} {self.valid_teacher.last_name}>"
 
 
 
@@ -69,5 +112,11 @@ class ClassTeacher(db.Model):
 class ValidStudent(db.Model):
     id = db.Column(db.Integer,primary_key=True) 
     first_name = db.Column(db.String(50),nullable=False)
-    last_name = db.Column(db.String(50),nullable=False)    
+    last_name = db.Column(db.String(50),nullable=False)   
+
+    # Class+ValidStudent [1:m]
+    class_ = db.relationship("Class", back_populates="students")
+
+    def __repr__(self):
+        return f"<ValidStudent: {self.first_name} {self.last_name}>"
 
