@@ -7,6 +7,7 @@ from auth.models import Teacher,Admin,Student
 class CompulsarySubject(db.Model):
     __tablename__ = "compulsarysubject"
 
+
     id = db.Column(db.Integer,primary_key=True)
     subject_name = db.Column(db.String(50),unique=True)
     subject_code = db.Column(db.String(50),unique=True)

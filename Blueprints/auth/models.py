@@ -35,7 +35,7 @@ class Admin(db.Model):
 
 class Student(db.Model):
     id = db.Column(db.Integer,primary_key=True)    
-    teacher_school_id = db.Column(db.String(20),unique=True,nullable=False)
+    student_school_id = db.Column(db.String(20),unique=True,nullable=False)
     password = db.Column(db.String(20),nullable=False)
     created_at = db.Column(db.DateTime,default=datetime.utcnow)
     updated_at = db.Column(db.DateTime,onupdate=datetime.utcnow) 
@@ -45,3 +45,6 @@ class Student(db.Model):
 
     # Student+ValidStudent [1:1]
     valid_student = db.relationship("ValidStudent", back_populates="student", uselist=False)  
+
+    # Exam + Student
+    exam_link = db.relationship("StudentExam", back_populates="student_", uselist=True)
